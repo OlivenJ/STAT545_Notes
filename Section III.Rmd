@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(gapminder)
 library(tidyverse)
+library(fs)
 ```
 
 ## Chapter 5 Basic Care and Feeding of Data in R
@@ -59,4 +60,138 @@ filter(gapminder, country %in% c("Rwanda", "Afghanistan"))
 select(gapminder, year, lifeExp)
 
 gapminder %>% select(year, lifeExp) %>% head(4)
+```
+
+##Chapter 7 Singel table dplyr functions
+```{r}
+gap <- gapminder
+
+gap_can <- gap %>% filter(country == "Canada")
+
+bench <- gap %>% filter(country == "Australia") 
+
+gap <- gap %>% mutate(
+  benchmark = rep(bench$gdpPercap, nlevels(country)),
+  ratio = gdpPercap/benchmark,
+  benchmark = NULL
+) 
+
+gap %>% 
+  filter(year == 2007) %>%  
+  arrange(desc(gdpPercap * pop))
+
+gap %>% 
+  rename(life_exp = lifeExp,
+         gdp_Percap = gdpPercap)
+```
+
+```{r}
+gap %>%
+  filter(country == "Burundi", year > 1996) %>%
+  select(yr = year, lifeExp, gdpPercap) %>%
+  select(gdpPercap, everything())
+```
+we can use select to rename variable, new name is still before the old one
+and select will display information in given order, use everything to indicate literally everything.
+
+```{r}
+gap %>% 
+  group_by(continent) %>% 
+  summarise(n = n())
+
+gap %>%
+  group_by(continent) %>%
+  tally()
+
+gap %>%
+  count(continent)
+
+gap %>%
+  group_by(continent) %>%
+  summarize(n = n_distinct(country))
+```
+
+```{r}
+gap %>%
+  filter(year %in% c(1952, 2007)) %>% 
+  group_by(continent, year) %>% 
+  summarize_at(vars(lifeExp, gdpPercap), list(~mean(.), ~median(.)))
+
+gap %>%
+  filter(continent == "Asia") %>%
+  group_by(country) %>%
+  summarize(max_life = max(lifeExp), min_life = min(lifeExp))
+
+```
+summarize_at() function allowing summarize multiple variables at one shot. The first vars() argument requring different variables, and then indicates the function to use different functions to summarize.
+
+```{r}
+gap %>%
+  group_by(country) %>%
+  select(country, year, lifeExp) %>%
+  mutate(lifeExp_diff = lifeExp - first(lifeExp)) %>%
+  filter(year == 2007) %>% arrange(lifeExp_diff)
+```
+
+The first() function will extract the first value of the vector, like here it extract the first value of lifeExp within each country group.
+
+```{r}
+gap %>%
+  filter(continent == "Asia") %>% 
+  select(year, country, lifeExp) %>% 
+  group_by(year) %>% 
+  filter(min_rank(desc(lifeExp)) < 2 | min_rank(lifeExp) < 2) %>% 
+  arrange(year) %>% 
+  print(n = Inf)
+  
+ asia <- gap %>% filter(continent == "Asia")
+ 
+ asia %>% group_by(year) %>%
+   mutate(le_rank = min_rank(lifeExp),
+          le_desc_rank = min_rank(desc(lifeExp))) %>% 
+   filter(year > 1995)
+
+ gap %>%
+   arrange(year) %>%
+   group_by(year) %>% 
+   top_n(1, wt = desc(lifeExp))
+```
+
+```{r}
+gap %>% 
+  select(country, year, continent, lifeExp) %>% 
+  group_by(continent, country) %>% 
+  mutate(le_delta = lifeExp - lag(lifeExp)) %>% 
+  summarize(worst_le_delta = min(le_delta, na.rm = TRUE)) %>% 
+  top_n(-1, wt = worst_le_delta) %>% 
+  arrange(worst_le_delta)
+```
+
+##Chapter 9 Writing and reading files
+```{r}
+gap_tsv <- path_package("gapminder", "extdata", "gapminder.tsv")
+
+gapminder <- read_tsv(gap_tsv)
+
+str(gapminder, give.attr = FALSE)
+
+
+gap_life_exp <- gapminder %>% 
+  group_by(country, continent) %>% 
+  summarise(life_exp = max(lifeExp)) %>% 
+  ungroup()
+
+write_csv(gap_life_exp, "gap_life_exp.csv")
+
+```
+
+to write a data, specify which data frame you want outport, and give it a name, with appropriate suffix
+
+```{r}
+
+gap_life <- gap_life %>% 
+  mutate(country = fct_reorder(country, life_exp))
+
+head(levels(gap_life$country))
+
 ```
