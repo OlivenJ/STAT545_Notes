@@ -1,0 +1,52 @@
+---
+title: "Data Analysis I"
+author: "Zhiyuan Jiang"
+date: "28/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gapminder)
+library(tidyverse)
+```
+
+## Chapter 5 Basic Care and Feeding of Data in R
+
+```{r}
+
+str(gapminder)
+class(gapminder)
+names(gapminder)
+nrow(gapminder)
+ncol(gapminder)
+dim(gapminder)
+length(gapminder)
+summary(gapminder)
+plot(lifeExp ~ year, gapminder) 
+```
+Year in the x-axis, against life in y-axis; y ~ x, like any formula 
+```{r}
+plot(lifeExp ~ gdpPercap, gapminder)
+plot(lifeExp ~ log(gdpPercap), gapminder)
+
+hist(gapminder$lifeExp)
+summary(gapminder$year)
+levels(gapminder$country)
+nlevels(gapminder$country)
+barplot(table(gapminder$continent))
+```
+
+Some basic ggplot2 graph
+```{r}
+p <- ggplot(filter(gapminder, continent != "Oceania"),
+            aes(x = gdpPercap, y = lifeExp))
+p <- p + scale_x_log10()
+p + geom_point()
+p+geom_point(aes(color = continent))
+p + geom_point(alpha = (1/3), size = 3) + geom_smooth(lwd = 3, se = FALSE)
+p + geom_point(alpha = (1/3), size = 3) + facet_wrap( ~ continent) + 
+  geom_smooth(lwd = 1.5, se = FALSE)
+
+
+```
