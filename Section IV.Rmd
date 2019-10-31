@@ -1,0 +1,184 @@
+---
+title: "Section IV"
+author: "Zhiyuan Jiang"
+date: "30/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gapminder)
+library(tidyverse)
+library(fs)
+```
+
+##Chapter 10: Be the Boss of your factors
+```{r}
+gapminder$country <- gapminder$country %>% as_factor()
+
+nlevels(gapminder$country)
+
+gapminder %>%
+count(continent)
+
+fct_count(gapminder$continent)
+
+h_countries <- c("Egypt", "Haiti", "Romania", "Thailand", "Venezuela")
+h_gap <- gapminder %>% filter(country %in% h_countries)
+gap_level <- gapminder %>% 
+  filter(country %in% h_countries)
+
+nlevels(gap_level$country)
+
+gap_level %>% 
+  droplevels() %>% 
+  levels()
+```
+
+```{r}
+gapminder$continent %>% 
+  levels()
+
+gapminder$continent <- gapminder$continent %>% as_factor()
+
+gapminder$continent %>% fct_infreq() %>% 
+  levels()
+
+gapminder$continent %>% 
+  fct_infreq() %>% 
+  fct_rev() %>% 
+  levels()
+
+fct_reorder(gapminder$country, gapminder$lifeExp, .desc = TRUE) %>% 
+   levels() %>% head()
+```
+
+
+```{r}
+fct_reorder(gapminder$country, gapminder$lifeExp) %>% 
+  levels() %>% 
+  head()
+
+fct_reorder(gapminder$country, gapminder$lifeExp, min) %>% 
+  levels() %>% 
+  head()
+
+fct_reorder(gapminder$country, gapminder$lifeExp) %>% 
+  fct_rev() %>% 
+  levels() %>% 
+  head()
+
+fct_reorder(gapminder$country, gapminder$lifeExp, .desc = TRUE) %>% 
+  levels() %>% 
+  head()
+
+gap_asia_2007 <- gapminder%>% filter(year == 2007, continent == "Asia")
+
+ggplot(gap_asia_2007, aes(x = lifeExp, y = country)) + geom_point()
+ggplot(gap_asia_2007, aes(x = lifeExp, y = fct_reorder(country, lifeExp))) + geom_point()
+
+ggplot(h_gap, aes(x = year, y = lifeExp, color = country)) + geom_line()
+ggplot(h_gap, aes(x = year, y = lifeExp, color = fct_reorder2(country, year, lifeExp))) + 
+  geom_line() +
+  labs(color = "country")
+```
+
+```{r}
+i_gap <- gapminder %>% 
+  filter(country %in% c("United States", "Sweden", "Australia")) %>%
+  droplevels()
+
+i_gap$country %>% levels()
+
+i_gap$country %>% 
+  fct_recode("USA" = "United States", "Oz" = "Australia"  ) %>% levels()
+
+
+k_gap <- gapminder%>% 
+  filter(country %in% c("Australia", "Korea, Dem. Rep.", "Korea, Rep.")) %>% 
+  droplevels()
+k_gap$country %>% levels()
+
+k_gap$country %>%
+  fct_recode("Oz" = "Australia", "Norht Korea" = "Korea, Dem. Rep.", "South Korea" = "Korea, Rep.") %>% levels()
+```
+
+```{r}
+df1 <- gapminder %>%
+  filter(country %in% c("United States", "Mexico"), year > 2000 ) %>% 
+  droplevels()
+df2 <- gapminder %>%
+  filter(country %in% c("France", "Germany"), year > 2000) %>% 
+  droplevels()
+
+levels(df1$country)
+levels(df2$country)
+
+fct_c(df1$country, df2$country)
+```
+
+##Chapter11 Character Vectors
+
+```{r}
+str_detect(fruit, pattern = "fruit")
+
+my_fruit <- str_subset(fruit, pattern = "fruit")
+
+str_split(my_fruit, pattern = " ")
+str_split_fixed(my_fruit, pattern = " ", n= 2)
+my_fruit_df <- tibble(my_fruit)
+my_fruit_df %>% 
+  separate(my_fruit, into = c("pre", "post"), sep = " ")
+
+length(my_fruit)
+str_length(my_fruit)
+
+head(my_fruit) %>% 
+  str_sub(1,3) ##Start with 1 instead of 0
+
+tibble(fruit) %>%
+  head() %>% 
+  mutate(snip = str_sub(fruit, 1:6, 3:8)) ## Str has two argument as start and end, here we give start 1:6 and end 3:8, hence the snip will be 1-3, 2-4, 4-5 etc.
+
+x <- head(fruit, 3)
+str_sub(x, 1,3) <- "AAA"
+x ## here we have start as 1 and end as 3, so we instate the first 3 character to AAA
+
+head(fruit) %>% 
+  str_c(collapse = ", ")
+
+str_c(fruit[1:4], fruit[5:8], sep = " & ") ## c stands for combine
+str_c(fruit[1:4], fruit[5:8], sep = " & ", collapse = ", ") ## sep for how to seperate and combine them, collapse indicates from where to collapse them 
+
+fruit_df <- tibble(
+  fruit1 = fruit[1:4],
+  fruit2 = fruit[5:8]
+)
+
+fruit_df %>%
+  unite("flavor_combo", fruit1, fruit2, sep = " & ")
+
+str_replace(my_fruit, pattern = "fruit", replacement = "THINGY")
+
+melons <- str_subset(fruit, pattern = "melon")
+melons[2] <- NA
+melons
+str_replace_na(melons, "UNKONWN MELON") #NA has specail function to handle
+
+tibble(melons) %>% 
+  replace_na(replace = list(melons = "UNKNOWN MELON"))
+```
+
+```{r}
+countries <- levels(gapminder$country)
+str_subset(countries, pattern = "i.a")
+str_subset(countries, pattern = "i.a$")
+str_subset(fruit, pattern = "^d")
+str_subset(fruit, pattern = "d")
+```
+
+##Chapter 13 Dates and times
+
+````{r}
+
+```
