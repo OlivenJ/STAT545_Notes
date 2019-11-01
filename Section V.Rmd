@@ -1,0 +1,104 @@
+---
+title: "Section V"
+author: "Zhiyuan Jiang"
+date: "01/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gapminder)
+library(tidyverse)
+library(lubridate)
+library(fs)
+```
+
+## Chapter 14 When one tibble is not enough 
+
+```{r}
+fship <- tribble(
+                         ~Film,    ~Race, ~Female, ~Male,
+  "The Fellowship Of The Ring",    "Elf",    1229,   971,
+  "The Fellowship Of The Ring", "Hobbit",      14,  3644,
+  "The Fellowship Of The Ring",    "Man",       0,  1995
+)
+rking <- tribble(
+                         ~Film,    ~Race, ~Female, ~Male,
+      "The Return Of The King",    "Elf",     183,   510,
+      "The Return Of The King", "Hobbit",       2,  2673,
+      "The Return Of The King",    "Man",     268,  2459
+)
+ttow <- tribble(
+                         ~Film,    ~Race, ~Female, ~Male,
+              "The Two Towers",    "Elf",     NA,   513,
+              "The Two Towers", "Hobbit",       NA,  2463,
+              "The Two Towers",    "Man",     NA,  3589
+)
+
+lotr_untidy <- bind_rows(fship,rking,ttow)
+lotr_untidy_rbind <- rbind(fship,rking,ttow)
+
+country_codes
+gapminder %>%  left_join(country_codes, "country")
+gapminder %>% select(country, continent) %>% 
+  group_by(country) %>% 
+  slice(1) %>% 
+  left_join(country_codes)
+```
+
+
+## Chapter 15 Join two tables
+```{r}
+superheroes <- tibble::tribble(
+       ~name, ~alignment,  ~gender,          ~publisher,
+   "Magneto",      "bad",   "male",            "Marvel",
+     "Storm",     "good", "female",            "Marvel",
+  "Mystique",      "bad", "female",            "Marvel",
+    "Batman",     "good",   "male",                "DC",
+     "Joker",      "bad",   "male",                "DC",
+  "Catwoman",      "bad", "female",                "DC",
+   "Hellboy",     "good",   "male", "Dark Horse Comics"
+  )
+
+publishers <- tibble::tribble(
+  ~publisher, ~yr_founded,
+        "DC",       1934L,
+    "Marvel",       1939L,
+     "Image",       1992L
+  )
+superheroes
+publishers
+
+inner_join(superheroes, publishers) #join 2nd table's value to 1st table, base on the 1st's match value, if there is no match value, ignore the item (hellboy's case here)
+semi_join(superheroes, publishers) # works like filter, will not join new value into 1st table, but display 1st table's item match with 2nd table 
+left_join(superheroes, publishers) # get 1st table back with value from 2nd table, if match does not found, NA would be added 
+anti_join(superheroes, publishers) # the other side of semi_join(), return the one(s) without match
+inner_join(publishers, superheroes) # joint the 2nd table's matched value to 1st table, here we can see that for same publisher it may contain several characters, so the publisher will be repeat to match the new value
+semi_join(publishers, superheroes) # return the 1st table's value with match in 2nd table, if ther is no matach, like Image, then it will be ignored
+left_join(publishers, superheroes) # here, we see the 1st table: publisher dominante the join, so the Image will retain though no match is find in the 2nd table. And the hellboy in the 2nd table with no match will be ignored 
+anti_join(publishers, superheroes) #opposite of semi_join()
+full_join(publishers,superheroes) #get all info together 
+full_join(superheroes,publishers)
+```
+
+```{r}
+mini_gap <- gapminder %>% 
+  filter(country %in% c("Belgium", "Canada", "United States", "Mexico"),
+         year > 2000) %>% 
+  select(-pop, -gdpPercap) %>% 
+  droplevels()
+
+food <- tribble(
+  ~country, ~food,
+  "Belgium", "waffle",
+  "Canada", "poutine",
+  "United States", "Twinkie"
+)
+
+indices <- match(x = mini_gap$country, table = food$country)
+add_column(food[indices,], x = mini_gap$country)
+mini_gap %>% 
+  mutate(food = food$food[indices])
+
+mini_gap %>% left_join(food)
+```
