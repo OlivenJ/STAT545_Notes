@@ -180,7 +180,7 @@ str_subset(fruit, pattern = "d")
 
 ##Chapter 13 Dates and times
 
-This chapter's most context comes from R for Data Science (Wickman 2016)
+This chapter's most context comes from R for Data Science (Wickhan and Grolemund 2016)
 
 ````{r}
 Sys.Date()
@@ -310,4 +310,101 @@ flights_dt %>%
     n = n()
   ) %>% 
   ggplot(aes(minute, avg_delay)) + geom_line()
+```
+
+```{r}
+flights_dt %>% 
+  count(week = floor_date(dep_time, "week")) %>% 
+  ggplot(aes(week,n)) +
+  geom_line()
+
+datetime <- ymd_hms("2016-07-08 12:34:56")
+
+year(datetime) <- 2020
+datetime
+
+month(datetime) <- 01
+datetime
+
+hour(datetime) <- hour(datetime) +1
+datetime
+
+update(datetime, year = 2020, month =2, mday = 2, hour = 2)
+
+ymd("2015-02-01") %>% 
+  update(mday = 30)
+
+ymd("2015-02-01") %>% 
+  update(hour = 400)
+
+flights_dt %>% 
+  mutate(dep_hour = update(dep_time, yday = 1)) %>% 
+  ggplot(aes(dep_hour)) +
+  geom_freqpoly(binwidth = 300)
+```
+
+```{r}
+flights_dt %>% ggplot(aes(x = air_time, na.rm= TRUE)) + geom_histogram(binwidth = 30)
+
+flights_dt %>% mutate(month = factor(month(dep_time))) %>% 
+  ggplot(aes(x = air_time, na.rm = TRUE, color = month)) +
+  geom_freqpoly( binwidth = 30)
+
+
+flights_dt %>% mutate(consist = dep_time == (sched_dep_time + dep_delay)) %>% filter(consist == TRUE)
+
+flights_dt %>% 
+  group_by(origin, dest) %>%
+  summarize(average = (ceiling(mean(air_time, na.rm =TRUE)))) %>%
+  arrange(average)
+
+flights_dt %>% 
+  mutate(sched_dep_hours = hour(sched_dep_time)) %>% 
+  group_by(sched_dep_hours) %>% 
+  summarize(avg_delay = mean(dep_delay)) %>% 
+  ggplot(aes(x = sched_dep_hours, y = avg_delay)) +
+  geom_point()+
+  geom_smooth()
+
+flights_dt %>% mutate(weekday = wday(dep_time,label = TRUE, abbr = TRUE )) %>%
+  group_by(weekday) %>% 
+  summarise(avg_dep_delay = mean(dep_delay)) %>% 
+  ggplot(aes(x = weekday, y = avg_dep_delay)) +
+  geom_bar(stat = "identity")
+
+```
+
+```{r}
+my_age <- today() - ymd(19970628)
+my_age
+as.duration(my_age)
+dseconds(15)
+dminutes(15)
+dhours(c(12,24))
+ddays(0:5)
+dweeks(3)
+dyears(1)
+
+2 * dyears(2)
+
+dyears(1) + dweeks(2) + ddays(3)
+
+tomorrow <- today() + ddays(1)
+tomorrow
+last_year <- today() - dyears(1)
+last_year
+
+one_pm <- ymd_hms("2016-03-12 13:00:00", tz = "America/New_York")
+
+one_pm + ddays(1) #due to the DST (Daylight saving time, the 03-12 only has 23 hours, so adding one day(24 hours) will yiel extra hour)
+one_pm + days(1) #here we add days instead of ddays, the days is period time, which consist with humna's sense as one day, not exactly how many seconds
+
+flights_dt_fix <-flights_dt %>% 
+  filter(arr_time < dep_time) %>% 
+  mutate(arr_time = arr_time + days(1))
+
+next_year <- today() +years(1)
+(today() %--% next_year)/days(1) # the left hand side is a interval: period with starting point 
+
+OlsonNames()
 ```
