@@ -67,3 +67,27 @@ mmm2 <- function(x){
 #mmm2("test")
 mmm2(c(2,3,4,5,6))
 ```
+
+
+```{r}
+quantile(gapminder$lifeExp)
+quantile(gapminder$lifeExp, probs = 0.5)
+median(gapminder$lifeExp)
+quantile(gapminder$lifeExp, prob = c(0.25, 0.75))
+boxplot(gapminder$lifeExp, plot = FALSE)$stat
+
+
+the_probs <- c(0.25, 0.75)
+the_quantile <- quantile(gapminder$lifeExp, probs = the_probs)
+max(the_quantile) - min(the_quantile)
+
+qdiff1 <- function(x, probs){
+  stopifnot(is.numeric(x))
+the_quantile <- quantile( x = x, probs = probs)
+max(the_quantile) - min(the_quantile)
+}
+qdiff1(gapminder$lifeExp, probs = c(0.25, 0.75))
+qdiff1(gapminder$lifeExp, probs = c(0,1))
+IQR(gapminder$lifeExp) #IQR stands for Interquartile range
+
+```
