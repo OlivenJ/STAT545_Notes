@@ -91,3 +91,55 @@ qdiff1(gapminder$lifeExp, probs = c(0,1))
 IQR(gapminder$lifeExp) #IQR stands for Interquartile range
 
 ```
+
+```{r}
+qdiff3 <- function(x, probs = c(0, 1)) {
+  stopifnot(is.numeric(x))
+  the_quantiles <- quantile(x, probs)
+  max(the_quantiles) - min(the_quantiles)
+}
+
+z <- gapminder$lifeExp
+z[3] <- NA
+#quantile(z) will report error because there is one NA value 
+quantile(z, na.rm = TRUE)
+
+qdiff4 <- function(x, probs = c(0,1)){
+  stopifnot(is.numeric(x))
+  the_quantiles <- quantile(x, probs, na.rm = TRUE)
+  max(the_quantiles) - min(the_quantiles)
+}
+qdiff4(gapminder$lifeExp)
+qdiff4(z)
+
+qdiff5 <- function(x, probs = c(0,1), na.rm = TRUE){ #we give the control to user, set a default value to na.rm, while if use like, they can change this value at anytime 
+  stopifnot(is.numeric(x))
+  the_quantiles <- quantile(x, probs, na.rm = na.rm)
+  max(the_quantiles ) - min(the_quantiles)
+} 
+qdiff5(gapminder$lifeExp)
+qdiff5(z, na.rm = TRUE)
+```
+
+
+```{r}
+CHN <- gapminder %>% filter(country == "China")
+ggplot(data = CHN, aes(x = year, y = lifeExp)) + 
+  geom_point() +
+  geom_smooth(method = "lm", level = FALSE)
+
+CHN_fit <- lm(lifeExp ~ I(year - 1952), CHN)
+coef(CHN_fit)
+
+le_lin_fit <- function(dat, setoff = 1952){
+  the_fit <- lm(lifeExp ~ I(year - setoff), dat)
+  setNames(coef(the_fit), c("intercept", "slope"))
+}
+le_lin_fit(CHN)
+gapminder %>% filter(country == "Hong Kong, China") %>% le_lin_fit()
+
+gapminder %>% filter(country == "Hong Kong, China") %>% 
+  ggplot(aes(x = lifeExp, y = year)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
