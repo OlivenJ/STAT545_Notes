@@ -1,0 +1,69 @@
+---
+title: "Section VI"
+author: "Zhiyuan Jiang"
+date: "02/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gapminder)
+library(tidyverse)
+library(lubridate)
+library(fs)
+```
+
+
+## Chapter 17 R objects and indexing
+```{r}
+set.seed(1999)
+rnorm(5, mean = 10^(1:5))
+
+round(rnorm(5, sd = 10^(0:4)),2)
+
+(a <- list(veg = c("cabbage", "eggplant"),
+           tNum = c(pi, exp(1), sqrt(2)),
+           myAim = TRUE,
+           joeNum = 2:6))
+str(a)
+length(a)
+class(a)
+mode(a)
+
+a[2]
+a[[2]]
+a$myAim
+str(a$myAim)
+a[["tNum"]]
+```
+
+```{r}
+max(gapminder$lifeExp) - min(gapminder$lifeExp)
+with(gapminder, max(lifeExp) - min(lifeExp))
+range(gapminder$lifeExp)[2] - range(gapminder$lifeExp)[1]
+with(gapminder, range(lifeExp)[2] - range(lifeExp)[1])
+diff(range(gapminder$lifeExp))
+```
+
+For the function you write, stop the issuse before the issuse is produced: stopifnot()
+```{r}
+mmm <- function(x){
+  stopifnot(is.numeric(x))
+  max(x) - min(x)
+}
+#mmm("test")
+```
+See how the function pop out error reminder
+But sometimes, we are not happy with the error message stopifnot() provides, we want more freedome and customrised error message
+
+if() and stop()
+```{r}
+mmm2 <- function(x){
+  if(!is.numeric(x)){
+    stop('I am so sorry, but this function only works for numeric input! \n','You have provided an object of class: ', class(x)[1])
+  }
+  max(x) - min(x)
+}
+#mmm2("test")
+mmm2(c(2,3,4,5,6))
+```
