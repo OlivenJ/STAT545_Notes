@@ -61,6 +61,28 @@ ggplot(gapminder, aes(x = year, y = lifeExp, color = continent)) +
 
 ggplot(gapminder, aes(x = gdpPercap, y = lifeExp)) +
   scale_x_log10() + geom_bin2d()
+```
 
-?geom_bin2d
+```{r}
+ggplot(gapminder, aes(x = continent, y = lifeExp)) +
+  geom_point()
+
+gapminder %>% 
+  ggplot(aes(x = fct_reorder(continent, lifeExp), y = lifeExp)) + 
+  geom_jitter()
+
+ggplot(gapminder, aes(x = fct_reorder(continent,lifeExp), y = lifeExp)) +
+  geom_jitter(position = position_jitter(width = 0.1, height = 0), alpha = 1/4)
+
+ggplot(gapminder, aes(x = fct_reorder(continent, lifeExp), y = lifeExp) ) +
+  geom_boxplot()
+
+ggplot(gapminder, aes(x = fct_reorder(continent, lifeExp), y = lifeExp)) +
+  geom_jitter(position = position_jitter(width = 0.1, height = 0), alhpa = 1/4) +
+  geom_boxplot( outlier.color = "hotpink")
+
+ggplot(gapminder, aes(reorder(x = continent, lifeExp), y = lifeExp)) +
+  geom_jitter(position = position_jitter(width = 0.1), alpha = 1/4) +
+  stat_summary(fun.y = median, color = "red", geom = "point", size = 5)
+
 ```
