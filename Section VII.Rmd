@@ -126,3 +126,28 @@ ggplot(gapminder, aes(x = year, y = lifeExp)) +
   geom_jitter(alpha = 1/4) +
   geom_smooth(se = FALSE, method = "lm")
 ```
+
+##Do's and don'ts of making effective graphics
+
+Remember, good programming skill is not a guarantee of good data narrative.
+>One graph is more effective than another if its quantitative information can be decoded more quickly or more easily by most observers
+
+So, drawing graph have to follow some principles to communicate in more effective way.
+### No's
+1. No pie chart.
+Pie charts force people to read angles, which is base on proportion of 360, it will be hard for ordinary people to judge the precise angles of one part of a pie chart.
+
+2. What's worse than a pie chart are pie charts.
+
+3. Stacked and group bar charts
+They usually do not have a consistent base line. We can not deliver a common interpret of the charts
+
+4. Be consistent
+Your data graph should be consistent with other descriptions part liek the caption and scripts.
+
+###Do's
+1. Simple Simple Simple -- make the data stand out
+eliminate any unnecessary element of the graphs: background color, line, captions, labels, borders, colors, special effects, bolding, etc. All those things do nothing to help you display your data 
+
+2: consider logs: taking control of aspect ratio
+If necessary use log or anyother mehtod to transform you data, makes it more friendly to read.
